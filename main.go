@@ -14,11 +14,11 @@ import (
 	"time"
 
 	"github.com/jimjibone/log"
+	"github.com/jimjibone/wh/v1/bridges"
+	"github.com/jimjibone/wh/v1/bridges/services"
+	"github.com/jimjibone/wh/v1/clients"
+	"github.com/jimjibone/wh/v1/shared/stores"
 	clientsapi "github.com/jimjibone/woodhouse-api/go/v1/clients"
-	"github.com/jimjibone/woodhouse-core/shared/stores"
-	"github.com/jimjibone/woodhouse-core/wh/v1"
-	"github.com/jimjibone/woodhouse-core/wh/v1/devices"
-	"github.com/jimjibone/woodhouse-core/wh/v1/devices/services"
 	"github.com/urfave/cli/v2"
 )
 
@@ -181,20 +181,20 @@ func SetPower(ctx context.Context, endpoint string, on bool) (*PowerResponse, er
 
 type TasmotaDevice struct {
 	log    *log.Context
-	client *wh.Client
+	bridge *bridges.Bridge
 	ip     string
-	dev    *devices.Device
+	dev    *bridges.Device
 	info   *services.Info
 	online *services.Online
 	relay  *services.Relay
 }
 
-func NewTasmotaDevice(client *wh.Client, id, ip string) *TasmotaDevice {
+func NewTasmotaDevice(client *bridges.Bridge, id, ip string) *TasmotaDevice {
 	dev := &TasmotaDevice{
 		log:    log.NewContext(log.DefaultLogger, id, log.DebugLevel),
-		client: client,
+		bridge: client,
 		ip:     ip,
-		dev:    devices.NewDevice(id, clientsapi.Device_DEVICE),
+		dev:    bridges.NewDevice(id, clientsapi.Device_DEVICE),
 		info:   services.NewInfo(),
 		online: services.NewOnline(),
 		relay:  services.NewRelay("relay"),
@@ -351,12 +351,16 @@ func main() {
 			}
 
 			// Create the client.
-			client := wh.NewClient(
-				store,
-				args.String("addr"),
-				wh.WithClientID(args.String("id")),
-				wh.WithClientInfo("Tasmota Bridge", "Bridge for Tasmota devices", "0.1.0"),
-			)
+			client := bridges.NewBridge(bridges.BridgeConfig{
+				ClientConfig: clients.ClientConfig{
+					Store:             store,
+					ServerAddr:        args.String("addr"),
+					ClientID:          args.String("id"),
+					ClientName:        "Tasmota Bridge",
+					ClientDescription: "Bridge for Tasmota devices",
+					ClientVersion:     "0.1.0",
+				},
+			})
 
 			// Set up devices.
 			var devices []*TasmotaDevice
