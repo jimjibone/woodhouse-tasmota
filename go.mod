@@ -4,8 +4,8 @@ go 1.26.3
 
 require (
 	github.com/jimjibone/log v0.0.0-20260606072821-03b097ef99de
-	github.com/jimjibone/wh v0.0.0-20260724184323-3c5ae2c1888c
-	github.com/jimjibone/woodhouse-api v0.0.0-20260711162143-11e44122cfd4
+	github.com/jimjibone/wh v0.0.0-20261108230448-8c01994d79b8
+	github.com/jimjibone/woodhouse-api v0.0.0-20261107232937-51fd06a3756e
 	github.com/urfave/cli/v2 v2.27.7
 )
 

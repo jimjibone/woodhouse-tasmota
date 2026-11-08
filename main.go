@@ -14,11 +14,9 @@ import (
 	"time"
 
 	"github.com/jimjibone/log"
-	"github.com/jimjibone/wh/v1/bridges"
-	"github.com/jimjibone/wh/v1/bridges/services"
-	"github.com/jimjibone/wh/v1/clients"
-	"github.com/jimjibone/wh/v1/shared/stores"
-	clientsapi "github.com/jimjibone/woodhouse-api/go/v1/clients"
+	"github.com/jimjibone/wh/v2/bridges"
+	"github.com/jimjibone/wh/v2/clients"
+	"github.com/jimjibone/wh/v2/shared/stores"
 	"github.com/urfave/cli/v2"
 )
 
@@ -80,6 +78,12 @@ type StatusResponse struct {
 		WifiConfig int
 		WifiPower  float64
 	}
+
+	// StatusSTS has the same shape as a Tasmota STATE message (POWER, POWER1,
+	// POWER2, ...). StatusSNS has the same shape as a SENSOR message (ENERGY,
+	// ESP32, ...). Both are absent on devices that do not report them.
+	StatusSTS json.RawMessage
+	StatusSNS json.RawMessage
 }
 
 func (sr *StatusResponse) Name() string {
@@ -96,16 +100,17 @@ func (sr *StatusResponse) ID() string {
 	return id
 }
 
-func (sr *StatusResponse) Power() bool {
-	return sr.Status.Power == 1
-}
-
 func (sr *StatusResponse) String() string {
-	power := "off"
-	if sr.Power() {
-		power = "on"
+	power, _ := ParsePower(sr.StatusSTS)
+	channels := make([]string, 0, len(power))
+	for _, ch := range sortedChannels(power) {
+		state := "off"
+		if power[ch] {
+			state = "on"
+		}
+		channels = append(channels, fmt.Sprintf("%d=%s", ch, state))
 	}
-	return fmt.Sprintf("id: %q, name: %q, mac: %s, power: %s", sr.ID(), sr.Name(), sr.StatusNET.Mac, power)
+	return fmt.Sprintf("id: %q, name: %q, mac: %s, power: [%s]", sr.ID(), sr.Name(), sr.StatusNET.Mac, strings.Join(channels, " "))
 }
 
 func GetCommand(ctx context.Context, endpoint, command string, debug bool) ([]byte, error) {
@@ -150,103 +155,6 @@ func GetStatus(ctx context.Context, endpoint string, debug bool) (*StatusRespons
 	}
 
 	return status, nil
-}
-
-type PowerResponse struct {
-	PowerStr string `json:"POWER"`
-}
-
-func (pr *PowerResponse) Power() bool {
-	return pr.PowerStr == "ON"
-}
-
-func SetPower(ctx context.Context, endpoint string, on bool) (*PowerResponse, error) {
-	onString := "off"
-	if on {
-		onString = "on"
-	}
-	body, err := GetCommand(ctx, endpoint, fmt.Sprintf("Power%%20%s", onString), false)
-	if err != nil {
-		return nil, err
-	}
-
-	resp := &PowerResponse{}
-	err = json.Unmarshal(body, resp)
-	if err != nil {
-		return nil, err
-	}
-
-	return resp, nil
-}
-
-type TasmotaDevice struct {
-	log    *log.Context
-	bridge *bridges.Bridge
-	ip     string
-	dev    *bridges.Device
-	info   *services.Info
-	online *services.Online
-	relay  *services.Relay
-}
-
-func NewTasmotaDevice(client *bridges.Bridge, id, ip string) *TasmotaDevice {
-	dev := &TasmotaDevice{
-		log:    log.NewContext(log.DefaultLogger, id, log.DebugLevel),
-		bridge: client,
-		ip:     ip,
-		dev:    bridges.NewDevice(id, clientsapi.Device_DEVICE),
-		info:   services.NewInfo(),
-		online: services.NewOnline(),
-		relay:  services.NewRelay("relay"),
-	}
-
-	dev.log.Infof("created device at %s", ip)
-
-	dev.relay.On.OnAction(func(val bool) {
-		resp, err := SetPower(context.Background(), dev.ip, val)
-		if err != nil {
-			dev.log.Errorf("failed to set power: %s", err)
-		} else if dev.relay.On.Set(resp.Power()) {
-			powerString := "off"
-			if resp.Power() {
-				powerString = "on"
-			}
-			dev.log.Infof("via request: power changed to %s", powerString)
-		}
-	})
-
-	dev.dev.AddService(dev.info, dev.online, dev.relay)
-	if err := client.AddDevice(dev.dev); err != nil {
-		panic(err)
-	}
-
-	return dev
-}
-
-func (dev *TasmotaDevice) PollStatus(ctx context.Context) {
-	status, err := GetStatus(ctx, dev.ip, false)
-	if err != nil {
-		// Assume offline.
-		if dev.online.Online.Set(false) {
-			dev.log.Infof("went offline")
-		}
-		return
-	}
-
-	if dev.info.Name.Set(status.Name()) {
-		dev.log.Infof("name changed to %q", status.Name())
-	}
-	dev.online.LastSeen.Set(time.Now())
-	if dev.online.Online.Set(true) {
-		dev.log.Infof("came online")
-	}
-	if dev.relay.On.Set(status.Power()) {
-		powerString := "off"
-		if status.Power() {
-			powerString = "on"
-		}
-		dev.log.Infof("power changed to %s", powerString)
-	}
 }
 
 func main() {
@@ -364,8 +272,11 @@ func main() {
 
 			// Set up devices.
 			var devices []*TasmotaDevice
-			for id, ip := range endpoints {
-				dev := NewTasmotaDevice(client, id, ip)
+			for mac, ip := range endpoints {
+				dev, err := NewTasmotaDevice(client, mac, ip)
+				if err != nil {
+					return err
+				}
 				dev.PollStatus(context.Background())
 				devices = append(devices, dev)
 			}

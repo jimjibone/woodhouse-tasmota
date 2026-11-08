@@ -18,12 +18,10 @@ github.com/jimjibone/log v0.0.0-20260606072821-03b097ef99de h1:lacdWnURSFNru9mw4
 github.com/jimjibone/log v0.0.0-20260606072821-03b097ef99de/go.mod h1:cAZ4Fho7ewjG2YJswKbNnB5/kgT4b6xvYB+DosJhUeM=
 github.com/jimjibone/queue v0.0.0-20251004200840-d3855e27766b h1:lrRl76MlYrsW4n+J3HOKxXcEp8IWS4qDwlwydzZxL3Q=
 github.com/jimjibone/queue v0.0.0-20251004200840-d3855e27766b/go.mod h1:x9lSdmhC96e5FY2HvbEnFl+4IKhNje2gAIP//7wYcZM=
-github.com/jimjibone/wh v0.0.0-20260711170118-e12200ffa790 h1:FtCdi3oSvK46zKXtfKBvBL9B4zUbHM1fbtRPq874L0c=
-github.com/jimjibone/wh v0.0.0-20260711170118-e12200ffa790/go.mod h1:j5Fkyfd57Wn7RGLfrDsEDJyerCaU4ENaT9QD4qsPh64=
-github.com/jimjibone/wh v0.0.0-20260724184323-3c5ae2c1888c h1:qcoIGYNf5JMHKKnkhsaSr2GdpAHWZl5DfagpcTQzL9k=
-github.com/jimjibone/wh v0.0.0-20260724184323-3c5ae2c1888c/go.mod h1:j5Fkyfd57Wn7RGLfrDsEDJyerCaU4ENaT9QD4qsPh64=
-github.com/jimjibone/woodhouse-api v0.0.0-20260711162143-11e44122cfd4 h1:aMKlGKOEhMDpEIfmNYgsa+cszOTnViQu06yIyaoHYY0=
-github.com/jimjibone/woodhouse-api v0.0.0-20260711162143-11e44122cfd4/go.mod h1:VIQNXdBRqxxhCf0tQcxUVo1nEETAWMS8GCkXjS6qcH4=
+github.com/jimjibone/wh v0.0.0-20261108230448-8c01994d79b8 h1:GRg+2OSR1zVgmp63s43CDEF6CiYX1qgc+psGgwfcI4A=
+github.com/jimjibone/wh v0.0.0-20261108230448-8c01994d79b8/go.mod h1:7yPyybH3pSV5u/sWu5zaUvUMY5f7IehDFinYnYmE0iw=
+github.com/jimjibone/woodhouse-api v0.0.0-20261107232937-51fd06a3756e h1:W//uR3/be9DjUYke/QybQnR76PX3ZJaW8BZGWsGqo2c=
+github.com/jimjibone/woodhouse-api v0.0.0-20261107232937-51fd06a3756e/go.mod h1:9RB6mPgL57DtQ4ZDrThlkZWU48GuVGcHxDErKJMpBQ8=
 github.com/mattn/go-colorable v0.1.14 h1:9A9LHSqF/7dyVVX6g0U9cwm9pG3kP9gSzcuIPHPsaIE=
 github.com/mattn/go-colorable v0.1.14/go.mod h1:6LmQG8QLFO4G5z1gPvYEzlUgJ2wF+stgPZH1UqBm1s8=
 github.com/mattn/go-isatty v0.0.20 h1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWEY=
@@ -48,6 +46,8 @@ go.opentelemetry.io/otel/sdk/metric v1.43.0 h1:S88dyqXjJkuBNLeMcVPRFXpRw2fuwdvfC
 go.opentelemetry.io/otel/sdk/metric v1.43.0/go.mod h1:C/RJtwSEJ5hzTiUz5pXF1kILHStzb9zFlIEe85bhj6A=
 go.opentelemetry.io/otel/trace v1.43.0 h1:BkNrHpup+4k4w+ZZ86CZoHHEkohws8AY+WTX09nk+3A=
 go.opentelemetry.io/otel/trace v1.43.0/go.mod h1:/QJhyVBUUswCphDVxq+8mld+AvhXZLhe+8WVFxiFff0=
+go.yaml.in/yaml/v3 v3.0.5 h1:N6y/pJk8buWs9NY5ERU2HSMfm+IuD/OtfdAnq6kESPw=
+go.yaml.in/yaml/v3 v3.0.5/go.mod h1:HVTZu1O7/Vkt2N+BFy8Zza+lnLsABggaTM2ZpNIGuKg=
 golang.org/x/net v0.51.0 h1:94R/GTO7mt3/4wIKpcR5gkGmRLOuE/2hNGeWq/GBIFo=
 golang.org/x/net v0.51.0/go.mod h1:aamm+2QF5ogm02fjy5Bb7CQ0WMt1/WVM7FtyaTLlA9Y=
 golang.org/x/sys v0.6.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
